@@ -15,7 +15,12 @@ const supabase = createClient(
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: ['https://ecoacity.com', 'https://www.ecoacity.com'],
+  origin: [
+    'https://ecoacity.com',
+    'https://www.ecoacity.com',
+    'https://ecoacity.com/your-folder-name',  // Add your actual folder path
+    'https://www.ecoacity.com/your-folder-name'
+  ],
   credentials: true
 }));
 
