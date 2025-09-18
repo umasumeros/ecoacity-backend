@@ -14,7 +14,10 @@ const supabase = createClient(
 // EXPRESS APP SETUP
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['https://ecoacity.com', 'https://www.ecoacity.com'],
+  credentials: true
+}));
 
 // Homepage ROI Calculation Endpoint
 app.post('/api/calculate-roi', (req, res) => {
