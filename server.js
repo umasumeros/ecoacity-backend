@@ -23,6 +23,48 @@ app.use(cors({
   ],
   credentials: true
 }));
+// Create Stripe checkout session
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { email, priceId, successUrl, cancelUrl } = req.body;
+    
+    // Find existing subscriber
+    const { data: subscriber } = await supabase
+      .from('subscribers')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (!subscriber) {
+      return res.status(404).json({ error: 'Subscriber not found. Please sign up first.' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: priceId.includes('recurring') ? 'subscription' : 'payment',
+      customer_email: email,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        subscriber_id: subscriber.id,
+        subscriber_email: email
+      }
+    });
+
+    res.json({ sessionId: session.id, url: session.url });
+
+  } catch (error) {
+    console.error('Checkout session error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
 
 // Homepage ROI Calculation Endpoint
 app.post('/api/calculate-roi', (req, res) => {
